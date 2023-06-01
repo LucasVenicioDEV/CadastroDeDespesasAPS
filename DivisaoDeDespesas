@@ -1,0 +1,95 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.math.*;
+public class DivisaoDespesas {
+    public static void main(String[] args) {
+        List<Aluno> alunos = carregarAlunos();
+        List<Despesa> despesas = carregarDespesas("mes", 2023);
+        calcularDivisaoDespesas(alunos, despesas);
+    }
+    private static List<Aluno> carregarAlunos() {
+        List<Aluno> alunos = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new
+                FileReader("alunos.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                String nome = data[0];
+                String email = data[1];
+                double rendimentos = Double.parseDouble(data[2]);
+                Aluno aluno = new Aluno(nome, email, rendimentos);
+                alunos.add(aluno);
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar alunos: " +
+                    e.getMessage());
+        }
+        return alunos;
+    }
+    private static List<Despesa> carregarDespesas(String mes, int ano)
+    {
+        List<Despesa> despesas = new ArrayList<>();
+        String nomeArquivo = "despesas_" + mes + "_" + ano + ".txt";
+        try (BufferedReader reader = new BufferedReader(new
+                FileReader(nomeArquivo))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                String nome = data[0];
+                String descricao = data[1];
+                double valor = Double.parseDouble(data[2]);
+                int prioridade = Integer.parseInt(data[3]);
+                Despesa despesa = new Despesa(nome, descricao, valor,
+                        prioridade);
+                despesas.add(despesa);
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar despesas: " +
+                    e.getMessage());
+        }
+        return despesas;
+    }
+    private static void calcularDivisaoDespesas(List<Aluno> alunos,
+                                                List<Despesa> despesas) {
+        int numAlunos = alunos.size();
+        int numDespesas = despesas.size();
+        if (numAlunos == 0 || numDespesas == 0) {
+            System.out.println("Nenhum aluno ou despesa encontrada.Verifique os dados.");
+            return;
+        }
+// Calcular o valor total das despesas
+        double valorTotalDespesas = 0.0;
+        for (Despesa despesa : despesas) {
+            valorTotalDespesas += despesa.getValor();
+        }
+// Calcular a cota de cada aluno
+        double cotaAluno = Math.ceil(valorTotalDespesas / numAlunos);
+// Calcular o valor a ser pago por cada aluno para cada despesa
+        for (Despesa despesa : despesas) {
+            System.out.println("Despesa: " + despesa.getNome());
+            System.out.println("Descrição: " + despesa.getDescricao());
+            System.out.println("Valor: R$ " + despesa.getValor());
+            System.out.println("Prioridade: " + despesa.getPrioridade());
+// Calcular o valor que cada aluno deve pagar para essa despesa
+            double valorPorAluno = despesa.getValor() / numAlunos;
+
+            if (despesa.getPrioridade() == 5) {
+                System.out.println("Despesa Fixa");
+                for (Aluno aluno : alunos) {
+                    double numeroArredondado = Math.ceil(valorPorAluno);
+                    System.out.println(aluno.getNome() + " deve pagar: R$ " + Math.ceil(valorPorAluno)+"0");
+                }
+            } else {
+                System.out.println("Despesa Variada");
+                for (Aluno aluno : alunos) {
+                    double valorDesconto = cotaAluno - valorPorAluno;
+                    System.out.println(aluno.getNome() + " deve pagar: R$ "+ Math.ceil(valorPorAluno + valorDesconto)+"0");
+                }
+            }
+            System.out.println("---------------------");
+        }
+    }
+}
