@@ -1,0 +1,32 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+public class Aluno {
+    private String nome;
+    private String email;
+    private double rendimentos;
+    public Aluno(String nome, String email, double rendimentos) {
+        this.nome = nome;
+        this.email = email;
+        this.rendimentos = rendimentos;
+    }
+    public String getNome() {
+        return nome;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public double getRendimentos() {
+        return rendimentos;
+    }
+    public void salvarAluno() {
+        try (BufferedWriter writer = new BufferedWriter(new
+                FileWriter("alunos.txt", true))) {
+            writer.write(nome + "," + email + "," + rendimentos);
+            writer.newLine();
+            System.out.println("Aluno cadastrado com sucesso!");
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar aluno: " + e.getMessage());
+        }
+    }
+}
