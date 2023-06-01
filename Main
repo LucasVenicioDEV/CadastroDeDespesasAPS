@@ -1,0 +1,120 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+public class Main {
+    public static void main(String[] args) {
+// Cadastrar alunos
+        cadastrarAlunos();
+// Cadastrar despesas
+        cadastrarDespesas("Janeiro", 2023);
+// Calcular reservas
+        calcularReservas("Janeiro", 2023);
+// Calcular divisão das despesas
+        calcularDivisaoDespesas("Janeiro", 2023);
+    }
+    private static void cadastrarAlunos() {
+        Aluno aluno1 = new Aluno("João", "joao@example.com", 2500.0);
+        aluno1.salvarAluno();
+        Aluno aluno2 = new Aluno("Maria", "maria@example.com",2800.0);
+        aluno2.salvarAluno();
+        Aluno aluno3 = new Aluno("Pedro", "pedro@example.com",3000.0);
+        aluno3.salvarAluno();
+    }
+    private static void cadastrarDespesas(String mes, int ano) {
+        Despesa despesa1 = new Despesa("Aluguel", "Pagamento do aluguel", 1500.0, 5);
+        despesa1.salvarDespesa(mes, ano);
+        Despesa despesa2 = new Despesa("Internet", "Pagamento da conta de internet", 100.0, 4);
+        despesa2.salvarDespesa(mes, ano);
+        Despesa despesa3 = new Despesa("Mercado", "Compras do mercado", 300.0, 3);
+        despesa3.salvarDespesa(mes, ano);
+    }
+    private static void calcularReservas(String mes, int ano) {
+        List<Aluno> alunos = carregarAlunos();
+        for (Aluno aluno : alunos) {
+            Reserva reserva = new Reserva(mes, ano);
+            reserva.calcularReservas(aluno);
+        }
+    }
+    public static void calcularDivisaoDespesas(String mes, int ano)
+    {
+        List<Aluno> alunos = carregarAlunos();
+        List<Despesa> despesas = carregarDespesas(mes, ano);
+        if (alunos.isEmpty() || despesas.isEmpty()) {
+            System.out.println("Não há alunos ou despesas cadastradas.");
+            return;
+        }
+        int numAlunos = alunos.size();
+        double totalDespesas = calcularTotalDespesas(despesas);
+        double cotaAluno =Math.ceil(totalDespesas / numAlunos) ;
+
+        for (Despesa despesa : despesas) {
+            System.out.println("Despesa: " + despesa.getNome());
+            System.out.println("Descrição: " + despesa.getDescricao());
+            System.out.println("Valor: R$ " + despesa.getValor());
+            System.out.println("Prioridade: " + despesa.getPrioridade());
+            double valorPorAluno = despesa.getValor() / numAlunos;
+            if (despesa.getPrioridade() == 5) {
+                System.out.println("Despesa Fixa");
+                for (Aluno aluno : alunos) {
+                    System.out.println(aluno.getNome() + " deve pagar: R$ " + valorPorAluno+"0");
+                }
+            } else {
+                System.out.println("Despesa Variada");
+                for (Aluno aluno : alunos) {
+                    double valorDesconto = cotaAluno - valorPorAluno;
+                    System.out.println(aluno.getNome() + " deve pagar: R$ " + (valorPorAluno + valorDesconto)+"0");
+                }
+            }
+            System.out.println("---------------------");
+        }
+    }
+    private static double calcularTotalDespesas(List<Despesa>
+                                                        despesas)
+    {
+        double total = 0.0;
+        for (Despesa despesa : despesas) {total += despesa.getValor();
+        }
+        return total;
+    }
+    private static List<Aluno> carregarAlunos() {
+        List<Aluno> alunos = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new
+                FileReader("alunos.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                String nome = data[0];
+                String email = data[1];
+                double rendimentos = Double.parseDouble(data[2]);
+                Aluno aluno = new Aluno(nome, email, rendimentos);
+                alunos.add(aluno);
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar alunos: " + e.getMessage());
+        }
+        return alunos;
+    }
+    private static List<Despesa> carregarDespesas(String mes, int
+            ano) {
+        List<Despesa> despesas = new ArrayList<>();
+        String nomeArquivo = "despesas_" + mes + "_" + ano + ".txt";
+        try (BufferedReader reader = new BufferedReader(new
+                FileReader(nomeArquivo))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                String nome = data[0];
+                String descricao = data[1];
+                double valor = Double.parseDouble(data[2]);
+                int prioridade = Integer.parseInt(data[3]);
+                Despesa despesa = new Despesa(nome, descricao,valor,prioridade);
+                despesas.add(despesa);
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar despesas: " + e.getMessage());
+        }
+        return despesas;
+    }
+}
