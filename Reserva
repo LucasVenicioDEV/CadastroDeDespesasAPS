@@ -1,0 +1,22 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+public class Reserva {
+    private String mes;
+    private int ano;
+    public Reserva(String mes, int ano) {
+        this.mes = mes;
+        this.ano = ano;
+    }
+    public void calcularReservas(Aluno aluno) {
+        double reservaMensal = aluno.getRendimentos() * 0.05;
+        try (BufferedWriter writer = new BufferedWriter(new
+                FileWriter("reservas_" + mes + "_" + ano + ".txt", true))) {
+            writer.write(aluno.getNome() + "," + reservaMensal);
+            writer.newLine();
+            System.out.println("Reserva calculada para o aluno " + aluno.getNome() + ": R$" + reservaMensal);
+        } catch (IOException e) {
+            System.out.println("Erroaocalcularreserva:"+e.getMessage());
+        }
+    }
+}
